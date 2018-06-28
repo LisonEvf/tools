@@ -1,21 +1,19 @@
 <?php
-$DIR_PUB = dirname(__FILE__);
-$DIR_ROOT = $DIR_PUB.'/..';
 
 $dirPublish=$argv[1];
 $updateServer=$argv[2];
+$version=$argv[3];
 
-sprint("请输入版本号：");
-$input = trim(fgets(STDIN));
-
-if($input == "")
-	$version = "1.0.0.0";
-else {
-	$version = $input;
+if($version == ""){
+	sprint("请输入版本号：");
+	$input = trim(fgets(STDIN));
+	
+	if($input == "")
+		$version = "1.0.0.0";
+	else {
+		$version = $input;
+	}
 }
-println($version);
-println($updateServer);
-
 
 $resfilelist = tree($dirPublish."/res");
 $srcfilelist = tree($dirPublish."/src");
@@ -23,8 +21,8 @@ $filelist = array_merge_recursive($resfilelist,$srcfilelist);
 
 $versionfile = fopen("version.txt", "w");
 fwrite($versionfile, $version);
-$vfile = fopen($DIR_ROOT."/version.manifest", "w");
-$pfile = fopen($DIR_ROOT."/project.manifest", "w");
+$vfile = fopen($dirPublish."/version.manifest", "w");
+$pfile = fopen($dirPublish."/project.manifest", "w");
 
 $headStr = '{
 "packageUrl" : "'.$updateServer.'",
@@ -49,9 +47,6 @@ foreach ($filelist as $file){
 	fwrite($pfile, $str);
 }
 fwrite($pfile, "\n\t}\n}");
-
-copy($DIR_ROOT."/version.manifest",$dirPublish."/version.manifest");
-copy($DIR_ROOT."/project.manifest",$dirPublish."/project.manifest");
 
 function tree($directory)
 {
