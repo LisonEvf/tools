@@ -1,4 +1,4 @@
-#coding=utf-8
+# -* - coding: UTF-8 -* -
 from __future__ import division  
 import sys,os, shutil
 import re
@@ -116,7 +116,7 @@ def usage():
 
 if __name__ == "__main__":
     try:
-        opts,args = getopt.getopt(sys.argv[1:],'hils:o:p:',['icon','launchimage','source=','out='])
+        opts,args = getopt.getopt(sys.argv[1:],'hils:o:',['icon','launchimage','source=','out='])
     except getopt.GetoptError as err:
         print str(err)
         usage()
@@ -130,7 +130,7 @@ if __name__ == "__main__":
             out = value
         if key in ['-i','--icon']:
             mode = 'icon'
-        if key in ['-l','-launchimage']:
+        if key in ['-l','--launchimage']:
             mode = 'launchimage'
 
     if mode=='icon':
