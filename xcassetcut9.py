@@ -42,6 +42,7 @@ def analysisJsonShearIcon(motherImgPath,ImgOptPath):
         nSize = int(nWidth*nScale)
         
         out = imgPng.resize((nSize, nSize),Image.ANTIALIAS) #resize image with high-quality
+        out.convert("RGB");
         out.save(ImgOptPath+"/"+img_Name)
 
     jsonfile = open(ImgOptPath+"/Contents.json",'w')
