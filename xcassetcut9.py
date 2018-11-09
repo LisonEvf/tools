@@ -74,27 +74,25 @@ def analysisJsonShearLaunchImage(motherImgPath,ImgOptPath):
         strHight=hightObjmatch.group()
         strHight=strHight[1:]
 
+        # 读取到的目标大小
         nWidth = string.atoi(strWidth)
         nHeight = string.atoi(strHight)
 
         motherImg = Image.open(motherImgPath)
         (motherImgWidth,motherImgHeight) = motherImg.size
 
-        if True:
-            scale = nWidth/motherImgWidth
-            tWidth = nWidth
-            tHeight = int(motherImgHeight*scale)
-        else:
-            scale = nHeight/motherImgHeight
-            tWidth = int(motherImgWidth*scale)
-            tHeight = nHeight
-
-        tImage = motherImg.resize((tWidth,tHeight),Image.ANTIALIAS)
-
-        r,g,b,a = tImage.getpixel((1,1))
-
+        r,g,b,a = motherImg.getpixel((1,1))
         if a == 0:
             r,g,b,a = (255,255,255,255)
+
+        motherFixImg = Image.new('RGBA',(640, motherImgHeight),(r, g, b, a))
+        motherFixImg.paste(motherImg,(int((640 - motherImgWidth)/2),0),motherImg)
+
+        tWidth = nWidth
+        tHeight = int(motherImgHeight*nWidth/640)
+
+        tImage = motherFixImg.resize((tWidth,tHeight),Image.ANTIALIAS)
+        tImage = tImage.convert('RGBA')
 
         image = Image.new('RGBA',(nWidth, nHeight),(r, g, b, a))
         image.paste(tImage,(int((nWidth - tWidth)/2),int((nHeight - tHeight)/2)),tImage)
