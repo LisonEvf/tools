@@ -81,6 +81,7 @@ def analysisJsonShearLaunchImage(motherImgPath,ImgOptPath):
         motherImg = Image.open(motherImgPath)
         (motherImgWidth,motherImgHeight) = motherImg.size
 
+        motherImg = motherImg.convert('RGBA')
         r,g,b,a = motherImg.getpixel((1,1))
         if a == 0:
             r,g,b,a = (255,255,255,255)
