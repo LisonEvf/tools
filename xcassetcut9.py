@@ -10,10 +10,10 @@ from PIL import Image,ImageDraw,ImageFont,ImageFilter
 iconjson = '{"images":[{"size":"20x20","idiom":"iphone","filename":"icon-20@2x.png","scale":"2x"},{"size":"20x20","idiom":"iphone","filename":"icon-20@3x.png","scale":"3x"},{"size":"29x29","idiom":"iphone","filename":"icon-29.png","scale":"1x"},{"size":"29x29","idiom":"iphone","filename":"icon-29@2x.png","scale":"2x"},{"size":"29x29","idiom":"iphone","filename":"icon-29@3x.png","scale":"3x"},{"size":"40x40","idiom":"iphone","filename":"icon-40@2x.png","scale":"2x"},{"size":"40x40","idiom":"iphone","filename":"icon-40@3x.png","scale":"3x"},{"size":"57x57","idiom":"iphone","filename":"icon-57.png","scale":"1x"},{"size":"57x57","idiom":"iphone","filename":"icon-57@2x.png","scale":"2x"},{"size":"60x60","idiom":"iphone","filename":"icon-60@2x.png","scale":"2x"},{"size":"60x60","idiom":"iphone","filename":"icon-60@3x.png","scale":"3x"},{"size":"20x20","idiom":"ipad","filename":"icon-20-ipad.png","scale":"1x"},{"size":"20x20","idiom":"ipad","filename":"icon-20@2x-ipad.png","scale":"2x"},{"size":"29x29","idiom":"ipad","filename":"icon-29-ipad.png","scale":"1x"},{"size":"29x29","idiom":"ipad","filename":"icon-29@2x-ipad.png","scale":"2x"},{"size":"40x40","idiom":"ipad","filename":"icon-40.png","scale":"1x"},{"size":"40x40","idiom":"ipad","filename":"icon-40@2x.png","scale":"2x"},{"size":"50x50","idiom":"ipad","filename":"icon-50.png","scale":"1x"},{"size":"50x50","idiom":"ipad","filename":"icon-50@2x.png","scale":"2x"},{"size":"72x72","idiom":"ipad","filename":"icon-72.png","scale":"1x"},{"size":"72x72","idiom":"ipad","filename":"icon-72@2x.png","scale":"2x"},{"size":"76x76","idiom":"ipad","filename":"icon-76.png","scale":"1x"},{"size":"76x76","idiom":"ipad","filename":"icon-76@2x.png","scale":"2x"},{"size":"83.5x83.5","idiom":"ipad","filename":"icon-83.5@2x.png","scale":"2x"},{"size":"1024x1024","idiom":"ios-marketing","filename":"icon-1024.png","scale":"1x"}],"info":{"version":1,"author":"xcode"} }'
 launchImagejson = '{"images":[{"extent":"full-screen","idiom":"iphone","subtype":"2436h","filename":"Default_1125x1996.png","minimum-system-version":"11.0","orientation":"portrait","scale":"3x"},{"extent":"full-screen","idiom":"iphone","subtype":"736h","filename":"Default_1242x2208.png","minimum-system-version":"8.0","orientation":"portrait","scale":"3x"},{"extent":"full-screen","idiom":"iphone","subtype":"667h","filename":"Default_750x1334.png","minimum-system-version":"8.0","orientation":"portrait","scale":"2x"},{"orientation":"portrait","idiom":"iphone","filename":"Default_640x960.png","extent":"full-screen","minimum-system-version":"7.0","scale":"2x"},{"extent":"full-screen","idiom":"iphone","subtype":"retina4","filename":"Default_640x1136.png","minimum-system-version":"7.0","orientation":"portrait","scale":"2x"},{"orientation":"portrait","idiom":"ipad","filename":"Default_768x1024.png","extent":"full-screen","minimum-system-version":"7.0","scale":"1x"},{"orientation":"portrait","idiom":"ipad","filename":"Default_1536x2048.png","extent":"full-screen","minimum-system-version":"7.0","scale":"2x"},{"orientation":"portrait","idiom":"iphone","filename":"Default_320x480.png","extent":"full-screen","scale":"1x"},{"orientation":"portrait","idiom":"iphone","filename":"Default_640x960.png","extent":"full-screen","scale":"2x"},{"orientation":"portrait","idiom":"iphone","filename":"Default_640x1136.png","extent":"full-screen","subtype":"retina4","scale":"2x"},{"orientation":"portrait","idiom":"ipad","filename":"Default_768x1024.png","extent":"full-screen","scale":"1x"},{"orientation":"portrait","idiom":"ipad","filename":"Default_1536x2048.png","extent":"full-screen","scale":"2x"}],"info":{"version":1,"author":"xcode"} }'
 
-def analysisJsonShearIcon(motherImgPath,ImgOptPath):
-    if os.path.exists(ImgOptPath):
-        shutil.rmtree(ImgOptPath)
-    os.mkdir(ImgOptPath)
+def analysisJsonShearIcon(srcImgPath,outImgDir):
+    if os.path.exists(outImgDir):
+        shutil.rmtree(outImgDir)
+    os.mkdir(outImgDir)
 
     #获取json数据
     json_data = json.loads(iconjson)
@@ -23,36 +23,37 @@ def analysisJsonShearIcon(motherImgPath,ImgOptPath):
     #根据图片尺寸切图
     for img in ImgData:
     
-        img_Name = img["filename"]
-        img_Size = img["size"]
-        img_Scale = img["scale"]
+        imgName = img["filename"]
+        imgSize = img["size"]
+        imgScale = img["scale"]
         
-        widthObj = re.compile(r"([0-9]|[.]){1,}")
-        ScaleObj = re.compile(r"[0-9]{1,}")
+        sizeObj = re.compile(r"([0-9]|[.]){1,}")
+        scaleObj = re.compile(r"[0-9]{1,}")
         
-        widthObjmatch = widthObj.search(img_Size)
-        ScaleObjmatch = ScaleObj.search(img_Scale)
+        sizeObjmatch = sizeObj.search(imgSize)
+        scaleObjmatch = scaleObj.search(imgScale)
         
-        strWidth = widthObjmatch.group()
-        strScale = ScaleObjmatch.group()
-        
-        imgPng = Image.open(motherImgPath)
-        nWidth = string.atof(strWidth)
-        nScale = string.atoi(strScale)
-        nSize = int(nWidth*nScale)
-        
-        out = imgPng.resize((nSize, nSize),Image.ANTIALIAS) #resize image with high-quality
-        out = out.convert("RGB");
-        out.save(ImgOptPath+"/"+img_Name)
+        strSize = sizeObjmatch.group()
+        strScale = scaleObjmatch.group()
 
-    jsonfile = open(ImgOptPath+"/Contents.json",'w')
+        tarSize = string.atof(strSize)
+        tarScale = string.atoi(strScale)
+        
+        srcImg = Image.open(srcImgPath)
+        outSize = int(tarSize*tarScale)
+        
+        outImg = srcImg.resize((outSize, outSize),Image.ANTIALIAS) #resize image with high-quality
+        outImg = outImg.convert("RGB");
+        outImg.save(outImgDir+"/"+imgName)
+
+    jsonfile = open(outImgDir+"/Contents.json",'w')
     jsonfile.write(json.dumps(json_data))
     jsonfile.close()
 
-def analysisJsonShearLaunchImage(motherImgPath,ImgOptPath):
-    if os.path.exists(ImgOptPath):
-        shutil.rmtree(ImgOptPath)
-    os.mkdir(ImgOptPath)
+def analysisJsonShearLaunchImage(srcImgPath,outImgDir):
+    if os.path.exists(outImgDir):
+        shutil.rmtree(outImgDir)
+    os.mkdir(outImgDir)
 
     #获取json数据
     json_data = json.loads(launchImagejson)
@@ -62,44 +63,62 @@ def analysisJsonShearLaunchImage(motherImgPath,ImgOptPath):
     #根据图片尺寸切图
     for img in ImgData:
     
-        img_Name = img["filename"]
+        imgName = img["filename"]
 
         widthObj = re.compile(r"[0-9]{1,}")
         hightObj = re.compile(r"x[0-9]{1,}")
 
-        widthObjmatch=widthObj.search(img_Name)
-        hightObjmatch=hightObj.search(img_Name)
+        widthObjmatch=widthObj.search(imgName)
+        hightObjmatch=hightObj.search(imgName)
 
         strWidth=widthObjmatch.group()
         strHight=hightObjmatch.group()
         strHight=strHight[1:]
 
         # 读取到的目标大小
-        nWidth = string.atoi(strWidth)
-        nHeight = string.atoi(strHight)
+        outWidth = string.atoi(strWidth)
+        outHeight = string.atoi(strHight)
 
-        motherImg = Image.open(motherImgPath)
-        (motherImgWidth,motherImgHeight) = motherImg.size
+        srcImg = Image.open(srcImgPath)
+        (srcImgWidth,srcImgHeight) = srcImg.size
 
-        motherImg = motherImg.convert('RGBA')
-        r,g,b,a = motherImg.getpixel((1,1))
+        if srcImgHeight > 1136:
+            tar_scale = min(outWidth / 640, outHeight / 1136)
+            srcImg = srcImg.resize((int(srcImgWidth*tar_scale), int(srcImgHeight*tar_scale)), Image.ANTIALIAS)
+            left = (srcImg.size[0]-outWidth)/2
+            right = (srcImg.size[0]-outWidth)/2+outWidth
+            upper = (srcImg.size[1]-outHeight)/2
+            lowwer = (srcImg.size[1]-outHeight)/2+outHeight
+            srcImg = srcImg.crop((left,upper,right,lowwer))
+            outImg = Image.new('RGBA', (outWidth,outHeight), (255,255,255,255))
+            outImg.paste(srcImg, (0,0),srcImg)
+            outImg.save(outImgDir+"/"+imgName)
+            continue
+        elif srcImgWidth > 640:# logo图过大的情况，尺寸校准
+            srcImg = srcImg.resize((640,int(640*srcImgHeight/srcImgWidth)), Image.ANTIALIAS)
+            (srcImgWidth,srcImgHeight) = srcImg.size
+
+        # 填充背景色
+        srcImg = srcImg.convert('RGBA')
+        r,g,b,a = srcImg.getpixel((1,1))
         if a == 0:
             r,g,b,a = (255,255,255,255)
 
-        motherFixImg = Image.new('RGBA',(640, motherImgHeight),(r, g, b, a))
-        motherFixImg.paste(motherImg,(int((640 - motherImgWidth)/2),0),motherImg)
+        srcFixImg = Image.new('RGBA',(640, srcImgHeight),(r, g, b, a))
+        srcFixImg.paste(srcImg,(int((640 - srcImgWidth)/2),0),srcImg)
+        srcImg = srcFixImg
 
-        tWidth = nWidth
-        tHeight = int(motherImgHeight*nWidth/640)
+        tarWidth = outWidth
+        tarHeight = int(srcImgHeight*outWidth/640)
 
-        tImage = motherFixImg.resize((tWidth,tHeight),Image.ANTIALIAS)
-        tImage = tImage.convert('RGBA')
+        tarImage = srcFixImg.resize((tarWidth,tarHeight),Image.ANTIALIAS)
+        tarImage = tarImage.convert('RGBA')
 
-        image = Image.new('RGBA',(nWidth, nHeight),(r, g, b, a))
-        image.paste(tImage,(int((nWidth - tWidth)/2),int((nHeight - tHeight)/2)),tImage)
-        image.save(ImgOptPath+"/"+img_Name)
+        outImg = Image.new('RGBA',(outWidth, outHeight),(r, g, b, a))
+        outImg.paste(tarImage,(int((outWidth - tarWidth)/2),int((outHeight - tarHeight)/2)),tarImage)
+        outImg.save(outImgDir+"/"+imgName)
 
-    jsonfile = open(ImgOptPath+"/Contents.json",'w')
+    jsonfile = open(outImgDir+"/Contents.json",'w')
     jsonfile.write(json.dumps(json_data))
     jsonfile.close()
 
